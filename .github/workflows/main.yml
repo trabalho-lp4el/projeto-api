@@ -21,6 +21,7 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           APP_NAME: ${{ 'lp4-projeto-api' }}
         run: |
+          ls
           cd ./trabalho-lp4el/projeto-api
           docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
           heroku container:push web -a $APP_NAME
