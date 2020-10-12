@@ -28,6 +28,7 @@ namespace projeto_api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
+            services.AddDbContext<AplicacaoContext>(opt => opt.UseInMemoryDatabase("Aplicacao"));
             services.AddControllers();
             services.AddSwaggerGen();
         }
