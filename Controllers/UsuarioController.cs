@@ -25,7 +25,10 @@ namespace projeto_api.Controllers
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuario()
         {
             //return await _context.Usuario.ToListAsync();
-            return await _context.Usuario.Include(u => u.Pontos).ToListAsync();
+            return await _context.Usuario
+                                .Include(u => u.Pontos)
+                                .ThenInclude(p => p.Solicitacoes)
+                                .ToListAsync();
         }
 
         // GET: api/Usuario/5
@@ -33,7 +36,10 @@ namespace projeto_api.Controllers
         public async Task<ActionResult<Usuario>> GetUsuario(long id)
         {
             //var usuario = await _context.Usuario.FindAsync(id);
-            var usuario = await _context.Usuario.Include(u => u.Pontos).FirstOrDefaultAsync(i => i.Id == id);
+            var usuario = await _context.Usuario
+                .Include(u => u.Pontos)
+                .ThenInclude(p => p.Solicitacoes)
+                .FirstOrDefaultAsync(i => i.Id == id);
 
             if (usuario == null)
             {
@@ -106,6 +112,24 @@ namespace projeto_api.Controllers
         private bool UsuarioExists(long id)
         {
             return _context.Usuario.Any(e => e.Id == id);
+        }
+
+        [HttpPost("{id}/ponto")]
+
+
+        public async Task<ActionResult<Usuario>> PostPonto(Ponto ponto)
+        {
+            var usuario = await _context.Usuario.FindAsync(ponto.UsuarioId);
+            if(usuario == null)
+            {
+                return NotFound();
+            }
+
+            ponto.Usuario = usuario;
+            _context.Ponto.Add(ponto);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario); ;
         }
     }
 }

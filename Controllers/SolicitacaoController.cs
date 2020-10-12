@@ -9,7 +9,7 @@ using projeto_api.Models;
 
 namespace projeto_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class SolicitacaoController : ControllerBase
     {
