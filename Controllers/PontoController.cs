@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using projeto_api.Models;
 
 namespace projeto_api.Controllers
@@ -35,10 +36,26 @@ namespace projeto_api.Controllers
 
             if (ponto == null)
             {
-                return NotFound();
+                return NoContent();
             }
 
             return ponto;
+        }
+
+        // GET: api/Ponto/usuario/5
+        [HttpGet("usuario/{usuarioId}")]
+        public async Task<ActionResult<IEnumerable<Ponto>>> GetPontoByUsuario(long usuarioId)
+        {
+            var pontos = await _context.Ponto
+                .Where(ponto => ponto.UsuarioId == usuarioId)
+                .ToListAsync();
+
+            if (!pontos.Any())
+            {
+                return NoContent();
+            }
+
+            return pontos;
         }
 
         // PUT: api/Ponto/5
@@ -62,7 +79,7 @@ namespace projeto_api.Controllers
             {
                 if (!PontoExists(id))
                 {
-                    return NotFound();
+                    return NoContent();
                 }
                 else
                 {
@@ -79,10 +96,17 @@ namespace projeto_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Ponto>> PostPonto(Ponto ponto)
         {
-            _context.Ponto.Add(ponto);
-            await _context.SaveChangesAsync();
+            var usuario = _context.Usuario.FindAsync(ponto.UsuarioId);
 
-            return CreatedAtAction("GetPonto", new { id = ponto.Id }, ponto);
+            if (!(usuario.Result == null))
+            {
+                _context.Ponto.Add(ponto);
+                await _context.SaveChangesAsync();
+                
+                return CreatedAtAction("GetPonto", new { id = ponto.Id }, ponto);
+            }
+
+            return BadRequest();
         }
 
         // DELETE: api/Ponto/5
@@ -90,9 +114,10 @@ namespace projeto_api.Controllers
         public async Task<ActionResult<Ponto>> DeletePonto(long id)
         {
             var ponto = await _context.Ponto.FindAsync(id);
+            
             if (ponto == null)
             {
-                return NotFound();
+                return NoContent();
             }
 
             _context.Ponto.Remove(ponto);
