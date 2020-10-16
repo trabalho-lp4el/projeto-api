@@ -81,10 +81,31 @@ namespace projeto_api.Controllers
             return NoContent();
         }
 
-        // POST: api/Usuario
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
+        [HttpPost("login")]
+        public async Task<ActionResult<Usuario>> PostLogin(Usuario usuario)
+        {
+            var usuarioDB = _context.Usuario
+                            .Include(u => u.Pontos)
+                            .ThenInclude(p => p.Solicitacoes)
+                            .Where(u => u.Matricula == usuario.Matricula && u.Senha == usuario.Senha)
+                            .FirstOrDefault();
+                if(usuarioDB == null)
+            {
+                return NotFound();
+            }
+
+            return usuarioDB;
+        }
+
+
+
+
+
+
+            // POST: api/Usuario
+            // To protect from overposting attacks, enable the specific properties you want to bind to, for
+            // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+            [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
             _context.Usuario.Add(usuario);
